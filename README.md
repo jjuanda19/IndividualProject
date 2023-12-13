@@ -1,5 +1,5 @@
 # Individual Project
-## Introduction
+## Project Requirements
 ### Software Process Model
 For this mobile app, an Agile process model has been chosen. Agile allows for iterative development, making it easier to adapt to changes and refine functionalities incrementally as the project evolves during the development phases. This approach also provides flexibility to make changes in requirements or features if necessary, adapting to unknowns, extending knowledge, and adjusting along the project timeline.
 
@@ -26,3 +26,12 @@ Proper integration ensures that different parts of the application interact effe
 Integrating different components, APIs, or services might lead to integration complexities. 
 
 Configuration settings, especially when dealing with third-party APIs or services, might lead to errors or misconfigurations.
+
+## User Requirements
+
+1. Location-Bed Reminders: Users can set reminders associated with specific geographic locations, triggering notifications upon entering or exiting these areas.
+Reminder Customization:
+2. Customizable reminder options including title, description, time, and frequency.
+Ability to prioritize reminders and set recurring schedules as needed.
+3. Easy-to-use interface for managing and editing existing reminders.
+Snooze or dismiss options for reminders with flexibility in rescheduling
