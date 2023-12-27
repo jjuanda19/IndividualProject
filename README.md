@@ -34,4 +34,4 @@ Reminder Customization:
 2. Customizable reminder options including title, description, time, and frequency.
 Ability to prioritize reminders and set recurring schedules as needed.
 3. Easy-to-use interface for managing and editing existing reminders.
-Snooze or dismiss options for reminders with flexibility in rescheduling
+Snooze or dismiss options for reminders with flexibility in rescheduling. hello
