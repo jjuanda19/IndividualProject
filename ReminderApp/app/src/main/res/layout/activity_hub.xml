@@ -6,13 +6,28 @@
     android:layout_height="match_parent"
     tools:context=".HubActivity">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="339dp"
-        android:text="Nothing yet"
+    <EditText
+        android:id="@+id/editTextText"
+        android:layout_width="309dp"
+        android:layout_height="63dp"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="151dp"
+        android:layout_marginEnd="107dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="@string/Name_Remainder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="22dp"
+        android:text="@string/Date_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

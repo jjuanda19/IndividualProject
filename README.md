@@ -29,9 +29,21 @@ Configuration settings, especially when dealing with third-party APIs or service
 
 ## User Requirements
 
-1. Location-Bed Reminders: Users can set reminders associated with specific geographic locations, triggering notifications upon entering or exiting these areas.
+1. Location-Bed Reminders, users can set reminders associated with specific geographic locations, triggering notifications upon entering or exiting these areas.
 Reminder Customization:
 2. Customizable reminder options including title, description, time, and frequency.
 Ability to prioritize reminders and set recurring schedules as needed.
 3. Easy-to-use interface for managing and editing existing reminders.
-Snooze or dismiss options for reminders with flexibility in rescheduling. hello
+Snooze or dismiss options for reminders with flexibility in rescheduling. 
+4. Allow users to create and customize their profiles, including preferences, interests, and notification settings.
+5. Enable users to sync the application with their device's calendar, ensuring reminders and suggestions align with existing.
+6. Users can create task list to help organize and manage their daily to-do lists alongside reminders and suggestions.
+
+## System Requirements
+1. Perfomance
+    1. The application must respond to user actions within acceptable response  times.
+    2. Location-based triggers should activate reminders promptly upon entering or exiting specified areas.
+    3. Response times for triggering reminders upon entering or exiting specified locations should be within acceptable limits (e.g., seconds).
+    
+
+   
