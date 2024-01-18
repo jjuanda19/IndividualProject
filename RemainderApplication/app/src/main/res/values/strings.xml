@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Remainder Application</string>
+    <string name="add_remainder_button">+</string>
+    <string name="Nothing_Yet">No Remainders Yet</string>
+    <string name="title_activity_hub">Hub_Activity</string>
+    <string name="Name_Remainder">Introduce your remainder name</string>
+    <string name="Date_button">Chose a date</string>
+    <string name="Location_button">Pick a location</string>
+</resources>
