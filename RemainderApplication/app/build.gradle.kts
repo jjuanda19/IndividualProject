@@ -1,6 +1,7 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
 android {
@@ -33,10 +34,21 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
+    buildFeatures {
+        viewBinding = true
+    }
+}
+configurations.all {
+    resolutionStrategy {
+        force("com.android.volley:volley:1.1.1") // Use the required version
+    }
 }
 
 dependencies {
-    implementation ("com.google.android.gms:play-services-maps:17.0.1")
+    implementation ("com.google.android.gms:play-services-location:16.0.0")
+    implementation ("com.google.android.libraries.places:places:1.1.0")
+    implementation ("com.android.volley:volley:1.1.1")
+
     implementation ("com.google.android.gms:play-services-places:17.0.0")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
