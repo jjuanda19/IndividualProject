@@ -41,7 +41,7 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import java.util.Arrays;
 import java.util.List;
 
-abstract class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     // New variables for Current Place picker
     private val TAG = "MapsActivity"
@@ -113,7 +113,11 @@ abstract class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
     }
-
+    override fun onMapReady(googleMap: GoogleMap) {
+        // Example implementation
+        googleMap.addMarker(MarkerOptions().position(LatLng(0.0, 0.0)).title("Marker"))
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(LatLng(0.0, 0.0)))
+    }
 
 
 }

@@ -47,7 +47,7 @@ configurations.all {
 dependencies {
     implementation ("com.google.android.gms:play-services-location:21.0.1")
     implementation ("com.android.volley:volley:1.2.1")
-    //implementation ("com.android.volley:volley:1.1.1")
+
 
     implementation ("com.google.android.gms:play-services-places:17.0.0")
     implementation("androidx.core:core-ktx:1.12.0")
