@@ -45,10 +45,10 @@ configurations.all {
 }
 
 dependencies {
-    implementation ("com.google.android.gms:play-services-location:21.0.1")
+    implementation ("com.google.android.gms:play-services-location:21.1.0")
     implementation ("com.android.volley:volley:1.2.1")
-
-
+    implementation ("com.google.android.libraries.places:places:<version>")
+    implementation(  "com.google.android.gms:play-services-maps:18.2.0")
     implementation ("com.google.android.gms:play-services-places:17.0.0")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.appcompat:appcompat:1.6.1")

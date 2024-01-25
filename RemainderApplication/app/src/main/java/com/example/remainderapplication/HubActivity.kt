@@ -13,7 +13,7 @@ class HubActivity : AppCompatActivity() {
 
        val buttonMap=findViewById<Button>(R.id.buttonLocation)
         buttonMap.setOnClickListener{
-            val intent=Intent(this,MapsActivity::class.java)
+            val intent=Intent(this,MapActivity::class.java)
         startActivity(intent)
         }
     }
