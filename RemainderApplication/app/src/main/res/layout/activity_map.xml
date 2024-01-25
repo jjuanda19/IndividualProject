@@ -7,19 +7,20 @@
     xmlns:map="http://schemas.android.com/apk/res-auto"
     tools:context=".MapActivity">
 
-    <EditText
-        android:id="@+id/textLatitud"
+    <TextView
+        android:id="@+id/textLatitude"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="24dp"
         android:layout_marginEnd="10dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/cardView" />
 
-    <EditText
-        android:id="@+id/txtLongitud"
+    <TextView
+        android:id="@+id/txtLongitude"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
@@ -28,7 +29,21 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textLatitud" />
+        app:layout_constraintTop_toBottomOf="@+id/textLatitude" />
+
+    <TextView
+        android:id="@+id/textAddress"
+        android:layout_width="391dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="10dp"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/map" />
 
     <fragment
         android:id="@+id/map"
@@ -36,14 +51,47 @@
         android:layout_width="match_parent"
         android:layout_height="300dp"
         android:layout_marginStart="5dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="5dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtLongitud"
+        app:layout_constraintTop_toBottomOf="@+id/txtLongitude"
         map:cameraZoom="10"
         map:uiRotateGestures="true"
         map:uiZoomControls="true" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_margin="10dp"
+        app:cardCornerRadius="38dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="18dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        >
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/autoComplete_fragment"
+            android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
+            android:layout_width="382dp"
+            android:layout_height="match_parent" />
+
+    </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/saveaddressbutton"
+        android:layout_width="144dp"
+        android:layout_height="66dp"
+        android:layout_marginStart="136dp"
+        android:layout_marginTop="42dp"
+        android:layout_marginEnd="136dp"
+        android:text="@string/save_address_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textAddress" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 
