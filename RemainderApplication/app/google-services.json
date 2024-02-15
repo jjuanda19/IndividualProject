@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "185280164159",
+    "firebase_url": "https://remainder-application-7d97c-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "remainder-application-7d97c",
+    "storage_bucket": "remainder-application-7d97c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185280164159:android:8ecee2d5fd04799a3ae38a",
+        "android_client_info": {
+          "package_name": "com.example.remainderapplication"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDb66rjiGSMeHQJ13r3JNCjfr7wI7amZNA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

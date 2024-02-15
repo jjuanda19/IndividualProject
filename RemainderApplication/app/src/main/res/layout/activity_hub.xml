@@ -9,29 +9,29 @@
 
     <TextView
         android:id="@+id/textAddress"
-        android:layout_width="194dp"
-        android:layout_height="89dp"
+        android:layout_width="191dp"
+        android:layout_height="38dp"
         android:layout_marginStart="17dp"
-        android:layout_marginTop="148dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="17dp"
-        android:text="Text DEMO"
+        android:hint="Choose an Address"
         android:textAlignment="center"
-        android:textSize="14sp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintHorizontal_bias="0.8"
         app:layout_constraintStart_toEndOf="@+id/buttonLocation"
         app:layout_constraintTop_toBottomOf="@+id/tvDate" />
 
     <EditText
-        android:id="@+id/editTextText"
+        android:id="@+id/RemainderName"
         android:layout_width="309dp"
         android:layout_height="63dp"
         android:layout_marginStart="28dp"
         android:layout_marginTop="151dp"
         android:layout_marginEnd="107dp"
         android:ems="10"
+        android:hint="@string/Name_Remainder"
         android:inputType="text"
-        android:text="@string/Name_Remainder"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -44,7 +44,7 @@
         android:layout_marginTop="20dp"
         android:text="@string/Date_button"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
+        app:layout_constraintTop_toBottomOf="@+id/RemainderName" />
 
     <Button
         android:id="@+id/buttonLocation"
@@ -67,12 +67,26 @@
         android:layout_width="186dp"
         android:layout_height="36dp"
         android:layout_marginTop="31dp"
-        android:text="Date"
+        android:hint="Choose a Date"
         android:textAlignment="center"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/button_date"
-        app:layout_constraintTop_toBottomOf="@+id/editTextText" />
+        app:layout_constraintTop_toBottomOf="@+id/RemainderName" />
+
+    <Button
+        android:id="@+id/bt_savedata"
+        android:layout_width="184dp"
+        android:layout_height="77dp"
+        android:layout_marginStart="113dp"
+        android:layout_marginEnd="114dp"
+        android:layout_marginBottom="144dp"
+        android:text="@string/save_remainder"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

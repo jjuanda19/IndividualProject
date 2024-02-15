@@ -1,6 +1,7 @@
 package com.example.remainderapplication
 
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Geocoder
@@ -87,13 +88,20 @@ GoogleMap.OnMapLongClickListener  {
 
         val addressbuttonsave=findViewById<Button>(R.id.saveaddressbutton)
         addressbuttonsave.setOnClickListener {
-            val data:String= txtAddress.text.toString()
-            val sendDataIntent= Intent(this,HubActivity::class.java)
-            sendDataIntent.putExtra("EXTRA_LATITUDE",data)
-            startActivity(sendDataIntent)
+            val resultIntent = Intent()
+            val addressData = txtAddress.text.toString() // Get text from EditText
+            val latitudeData= txtLatitude.text.toString()
+            val longitudeData= txtLongitude.text.toString()
 
-
+            resultIntent.putExtra("EXTRA_ADDRESS", addressData)
+            resultIntent.putExtra("EXTRA_LATITUDE", latitudeData)
+            resultIntent.putExtra("EXTRA_LONGITUDE", longitudeData)
+            setResult(Activity.RESULT_OK, resultIntent)
+            finish() // Finish MapActivity and return to HubActivity
         }
+
+
+
 
 
         fusedLocationProviderClient=LocationServices.getFusedLocationProviderClient(this)
