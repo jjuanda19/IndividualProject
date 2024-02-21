@@ -23,6 +23,7 @@
 
     <application
         android:allowBackup="true"
+
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -41,7 +42,9 @@
 
         <activity
             android:name=".HubActivity"
+
             android:exported="false" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true" >
@@ -51,6 +54,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver android:name=".GeofenceBroadcastReceiver"/>
+
     </application>
 
 </manifest>
