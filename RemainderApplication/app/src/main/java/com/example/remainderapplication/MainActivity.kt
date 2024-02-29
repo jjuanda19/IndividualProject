@@ -1,28 +1,40 @@
 package com.example.remainderapplication
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.vo.Database
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingClient
+import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.LocationServices
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import kotlin.random.Random
 
 
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var dbref : DatabaseReference
+    private lateinit var dbref: DatabaseReference
     private lateinit var memberRecyclerView: RecyclerView
     private lateinit var memberArrayList: ArrayList<Member>
 
@@ -38,15 +50,14 @@ class MainActivity : AppCompatActivity() {
     private var isNetworkPermissionGranted = false
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        memberRecyclerView=findViewById(R.id.RemList)
-        memberRecyclerView.layoutManager =LinearLayoutManager(this)
+        memberRecyclerView = findViewById(R.id.RemList)
+        memberRecyclerView.layoutManager = LinearLayoutManager(this)
         memberRecyclerView.setHasFixedSize(true)
 
-        memberArrayList= arrayListOf<Member>()
+        memberArrayList = arrayListOf<Member>()
         getUserData()
 
 
@@ -54,18 +65,34 @@ class MainActivity : AppCompatActivity() {
 
 
 
-        permissionLauncher=registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()){ permissions ->
-            isCoarseLocationPermissionGranted =permissions[Manifest.permission.ACCESS_COARSE_LOCATION] ?: isCoarseLocationPermissionGranted
-            isFineLocationPermissionGranted =permissions[Manifest.permission.ACCESS_FINE_LOCATION] ?: isFineLocationPermissionGranted
-            isBackgroundLocationPermissionGranted =permissions[Manifest.permission.ACCESS_BACKGROUND_LOCATION] ?: isBackgroundLocationPermissionGranted
-            isInternetPermissionGranted =permissions[Manifest.permission.INTERNET] ?: isInternetPermissionGranted
-            isWakeLockPermissionGranted =permissions[Manifest.permission.WAKE_LOCK] ?: isWakeLockPermissionGranted
-            isReadExternalStoragePermissionGranted =permissions[Manifest.permission.READ_EXTERNAL_STORAGE] ?: isReadExternalStoragePermissionGranted
-            isWriteExternalStoragePermissionGranted =permissions[Manifest.permission.WRITE_EXTERNAL_STORAGE] ?: isWriteExternalStoragePermissionGranted
-            isManageExternalStoragePermissionGranted =permissions[Manifest.permission.MANAGE_EXTERNAL_STORAGE] ?: isManageExternalStoragePermissionGranted
-            isNetworkPermissionGranted =permissions[Manifest.permission.ACCESS_NETWORK_STATE] ?: isNetworkPermissionGranted
+        permissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+                isCoarseLocationPermissionGranted =
+                    permissions[Manifest.permission.ACCESS_COARSE_LOCATION]
+                        ?: isCoarseLocationPermissionGranted
+                isFineLocationPermissionGranted =
+                    permissions[Manifest.permission.ACCESS_FINE_LOCATION]
+                        ?: isFineLocationPermissionGranted
+                isBackgroundLocationPermissionGranted =
+                    permissions[Manifest.permission.ACCESS_BACKGROUND_LOCATION]
+                        ?: isBackgroundLocationPermissionGranted
+                isInternetPermissionGranted =
+                    permissions[Manifest.permission.INTERNET] ?: isInternetPermissionGranted
+                isWakeLockPermissionGranted =
+                    permissions[Manifest.permission.WAKE_LOCK] ?: isWakeLockPermissionGranted
+                isReadExternalStoragePermissionGranted =
+                    permissions[Manifest.permission.READ_EXTERNAL_STORAGE]
+                        ?: isReadExternalStoragePermissionGranted
+                isWriteExternalStoragePermissionGranted =
+                    permissions[Manifest.permission.WRITE_EXTERNAL_STORAGE]
+                        ?: isWriteExternalStoragePermissionGranted
+                isManageExternalStoragePermissionGranted =
+                    permissions[Manifest.permission.MANAGE_EXTERNAL_STORAGE]
+                        ?: isManageExternalStoragePermissionGranted
+                isNetworkPermissionGranted = permissions[Manifest.permission.ACCESS_NETWORK_STATE]
+                    ?: isNetworkPermissionGranted
 
-        }
+            }
         requestPermission()
 
         val buttonAddReminder = findViewById<Button>(R.id.buttonAddReminder)
@@ -107,61 +134,62 @@ class MainActivity : AppCompatActivity() {
             Manifest.permission.READ_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
 
-        isWriteExternalStoragePermissionGranted= ContextCompat.checkSelfPermission(
+        isWriteExternalStoragePermissionGranted = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.WRITE_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
 
-        isManageExternalStoragePermissionGranted= ContextCompat.checkSelfPermission(
+        isManageExternalStoragePermissionGranted = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.MANAGE_EXTERNAL_STORAGE
         ) == PackageManager.PERMISSION_GRANTED
 
-        isNetworkPermissionGranted= ContextCompat.checkSelfPermission(
+        isNetworkPermissionGranted = ContextCompat.checkSelfPermission(
             this,
             Manifest.permission.ACCESS_NETWORK_STATE
         ) == PackageManager.PERMISSION_GRANTED
 
-        val permissionRequest : MutableList<String> = ArrayList()
+        val permissionRequest: MutableList<String> = ArrayList()
 
-        if(!isCoarseLocationPermissionGranted){
+        if (!isCoarseLocationPermissionGranted) {
             permissionRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
 
         }
-        if(!isFineLocationPermissionGranted){
+        if (!isFineLocationPermissionGranted) {
             permissionRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
-        if(!isBackgroundLocationPermissionGranted) {
+        if (!isBackgroundLocationPermissionGranted) {
             permissionRequest.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
         }
-        if(!isInternetPermissionGranted) {
+        if (!isInternetPermissionGranted) {
             permissionRequest.add(Manifest.permission.INTERNET)
         }
-        if(!isWakeLockPermissionGranted) {
+        if (!isWakeLockPermissionGranted) {
             permissionRequest.add(Manifest.permission.WAKE_LOCK)
         }
-        if(!isReadExternalStoragePermissionGranted) {
+        if (!isReadExternalStoragePermissionGranted) {
             permissionRequest.add(Manifest.permission.READ_EXTERNAL_STORAGE)
         }
-        if(!isWriteExternalStoragePermissionGranted) {
+        if (!isWriteExternalStoragePermissionGranted) {
             permissionRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
         }
-        if(!isManageExternalStoragePermissionGranted) {
+        if (!isManageExternalStoragePermissionGranted) {
             permissionRequest.add(Manifest.permission.MANAGE_EXTERNAL_STORAGE)
         }
-        if(!isNetworkPermissionGranted) {
+        if (!isNetworkPermissionGranted) {
             permissionRequest.add(Manifest.permission.ACCESS_NETWORK_STATE)
         }
-        if(permissionRequest.isNotEmpty()){
+        if (permissionRequest.isNotEmpty()) {
             permissionLauncher.launch(permissionRequest.toTypedArray())
         }
     }
-    private fun getUserData(){
+
+    private fun getUserData() {
         dbref = FirebaseDatabase.getInstance().getReference("Member")
 
-        dbref.addValueEventListener(object : ValueEventListener{
+        dbref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if(snapshot.exists()){
+                if (snapshot.exists()) {
                     memberArrayList.clear()
 
                     for (userSnapshot in snapshot.children) {
@@ -171,13 +199,17 @@ class MainActivity : AppCompatActivity() {
                             memberArrayList.add(member!!)
                         }
                     }
-                    memberRecyclerView.adapter= Adapter(memberArrayList)
+                    memberRecyclerView.adapter = Adapter(memberArrayList)
+
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                TODO("Not yet implemented")
-            }
+                Log.e("MainActivity", "Failed to fetch members: ${error.message}")            }
         })
     }
+
+
+
+
 }
