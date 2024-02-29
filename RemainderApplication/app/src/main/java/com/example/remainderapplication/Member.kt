@@ -1,12 +1,12 @@
 package com.example.remainderapplication
 
 data class Member (
-    var RemID: String?=null,
-    var name: String?=null,
-     var address: String? = null,
-     var latitude: String? = null,
-     var longitude: String? = null,
-    var date: String? = null
+    var RemID: String="",
+    var name: String="",
+     var address: String = "",
+     var latitude: Double = 0.0,
+     var longitude: Double = 0.0,
+    var date: String=""
 
 
 

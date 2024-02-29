@@ -4,21 +4,25 @@ package com.example.remainderapplication
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.location.Geocoder
 import android.location.Location
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.common.api.Status
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.CircleOptions
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.libraries.places.api.Places
@@ -37,9 +41,15 @@ GoogleMap.OnMapLongClickListener  {
     private lateinit var txtLongitude: TextView
     private lateinit var txtAddress: TextView
     private lateinit var mMap: GoogleMap
+    companion object {
+        const val GEOFENCE_RADIUS = 100 // radius in meters
+    }
+
+
 
     private lateinit var currentLocation: Location
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
+
     private val permissionCode =101
 
     private lateinit var autocompleteFragment:AutocompleteSupportFragment
@@ -66,9 +76,11 @@ GoogleMap.OnMapLongClickListener  {
                 val latLng = place.latLng!!
                 val address = getAddressFromLatLng(latLng)
                 // Sets the latitude and longitude in the EditText fields.
-                txtLatitude.setText(latLng.latitude.toString())
-                txtLongitude.setText(latLng.longitude.toString())
-                txtAddress.setText(address)
+                txtLatitude.text = latLng.latitude.toString()
+                txtLongitude.text = latLng.longitude.toString()
+                txtAddress.text = address
+
+
 
 
                 // Clears any existing markers and adds a new marker at the clicked location.
@@ -77,6 +89,13 @@ GoogleMap.OnMapLongClickListener  {
                 mMap.addMarker(MarkerOptions().position(location).title(""))
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
                 zooOnMap(latLng)
+                mMap.addCircle(
+                    CircleOptions()
+                        .center(latLng)
+                        .radius(GEOFENCE_RADIUS.toDouble()) // Make sure GEOFENCE_RADIUS is accessible here
+                        .strokeColor(Color.argb(50, 70, 70, 70))
+                        .fillColor(Color.argb(70, 150, 150, 150))
+                )
             }
 
         })
@@ -166,15 +185,24 @@ GoogleMap.OnMapLongClickListener  {
         this.mMap.setOnMapClickListener(this)
         this.mMap.setOnMapLongClickListener(this)
 
-        // Defines a location (in this case, a location in Mexico) and moves the camera to it.
+        // Defines a location  and moves the camera to it.
         val userLocation = LatLng(currentLocation.latitude,currentLocation.longitude)
         mMap.addMarker(MarkerOptions().position(userLocation).title("Current Location"))
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation,17f))
-        txtLatitude.setText(currentLocation.latitude.toString())
-        txtLongitude.setText(currentLocation.longitude.toString())
+        txtLatitude.text = currentLocation.latitude.toString()
+        txtLongitude.text = currentLocation.longitude.toString()
         // Get and set the address
         val address = getAddressFromLatLng(userLocation)
-        txtAddress.setText(address)
+        txtAddress.text = address
+        mMap.addCircle(
+            CircleOptions()
+                .center(userLocation)
+                .radius(GEOFENCE_RADIUS.toDouble()) // Make sure GEOFENCE_RADIUS is accessible here
+                .strokeColor(Color.argb(50, 70, 70, 70))
+                .fillColor(Color.argb(70, 150, 150, 150))
+        )
+
+
 
     }
 
@@ -183,32 +211,53 @@ GoogleMap.OnMapLongClickListener  {
         val address = getAddressFromLatLng(latLng)
 
         // Sets the latitude and longitude in the EditText fields.
-        txtLatitude.setText(latLng.latitude.toString())
-        txtLongitude.setText(latLng.longitude.toString())
-        txtAddress.setText(address)
+        txtLatitude.text = latLng.latitude.toString()
+        txtLongitude.text = latLng.longitude.toString()
+        txtAddress.text = address
+
 
 
         // Clears any existing markers and adds a new marker at the clicked location.
         mMap.clear()
         val location = LatLng(latLng.latitude, latLng.longitude)
-        mMap.addMarker(MarkerOptions().position(location).title(""))
+        mMap.addMarker(MarkerOptions().position(location).title("Picked Location"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
+        mMap.addCircle(
+            CircleOptions()
+                .center(latLng)
+                .radius(GEOFENCE_RADIUS.toDouble()) // Make sure GEOFENCE_RADIUS is accessible here
+                .strokeColor(Color.argb(50, 70, 70, 70))
+                .fillColor(Color.argb(70, 150, 150, 150))
+        )
+
+
 
     }
+
 
     // onMapLongClick is called when the user long-clicks on the map.
     override fun onMapLongClick(latLng: LatLng) {
         val address = getAddressFromLatLng(latLng)
         // Similar to onMapClick, sets the latitude and longitude in the EditText fields
         // and updates the map with a new marker at the long-clicked location.
-        txtLatitude.setText(latLng.latitude.toString())
-        txtLongitude.setText(latLng.longitude.toString())
-        txtAddress.setText(address)
+        txtLatitude.text = latLng.latitude.toString()
+        txtLongitude.text = latLng.longitude.toString()
+        txtAddress.text = address
+
 
         mMap.clear()
         val location = LatLng(latLng.latitude, latLng.longitude)
-        mMap.addMarker(MarkerOptions().position(location).title(""))
+        mMap.addMarker(MarkerOptions().position(location).title("Picked Location"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(location))
+        mMap.addCircle(
+            CircleOptions()
+                .center(latLng)
+                .radius(GEOFENCE_RADIUS.toDouble()) // Make sure GEOFENCE_RADIUS is accessible here
+                .strokeColor(Color.argb(50, 70, 70, 70))
+                .fillColor(Color.argb(70, 150, 150, 150))
+        )
+
+
 
 
     }
