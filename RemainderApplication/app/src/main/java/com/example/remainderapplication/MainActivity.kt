@@ -10,8 +10,11 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.text.SpannableString
+import android.text.style.UnderlineSpan
 import android.util.Log
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,6 +27,7 @@ import com.google.android.gms.location.Geofence
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
@@ -32,7 +36,7 @@ import com.google.firebase.database.ValueEventListener
 import kotlin.random.Random
 
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
 
     private lateinit var dbref: DatabaseReference
     private lateinit var memberRecyclerView: RecyclerView
@@ -48,21 +52,32 @@ class MainActivity : AppCompatActivity() {
     private var isWriteExternalStoragePermissionGranted = false
     private var isManageExternalStoragePermissionGranted = false
     private var isNetworkPermissionGranted = false
+    private lateinit var singouttext: TextView
+    private var isDataFetchedInitially = false
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        memberArrayList = arrayListOf<Member>()
+
         memberRecyclerView = findViewById(R.id.RemList)
         memberRecyclerView.layoutManager = LinearLayoutManager(this)
         memberRecyclerView.setHasFixedSize(true)
-
-        memberArrayList = arrayListOf<Member>()
+        memberRecyclerView.adapter = Adapter(memberArrayList, this)
         getUserData()
 
+        singouttext = findViewById(R.id.textSingOut)
 
+        val content = SpannableString(singouttext.text.toString())
+        content.setSpan(UnderlineSpan(), 0, content.length, 0)
+        singouttext.text = content
 
-
+        singouttext.setOnClickListener {
+            intent = Intent(this, SingInActivity::class.java)
+            startActivity(intent)
+            finish()
+        }
 
 
         permissionLauncher =
@@ -185,31 +200,86 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun getUserData() {
-        dbref = FirebaseDatabase.getInstance().getReference("Member")
+
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId == null) {
+            Log.e("MainActivity", "User is not logged in.")
+            return
+        }
+        dbref =
+            FirebaseDatabase.getInstance().getReference("Users").child(userId).child("Reminders")
 
         dbref.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                if (snapshot.exists()) {
+                if (!isDataFetchedInitially) {
                     memberArrayList.clear()
 
                     for (userSnapshot in snapshot.children) {
 
-                        val member = userSnapshot.getValue(Member::class.java)
-                        if (member != null) { // Check for null to avoid adding null values to the list
-                            memberArrayList.add(member!!)
+                        val reminder = userSnapshot.getValue(Member::class.java)
+                        if (reminder != null) { // Check for null to avoid adding null values to the list
+                            reminder?.let {
+                                memberArrayList.add(it)
+                            }
                         }
                     }
-                    memberRecyclerView.adapter = Adapter(memberArrayList)
-
+                        memberRecyclerView.adapter?.notifyDataSetChanged()
+                        isDataFetchedInitially = true
                 }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                Log.e("MainActivity", "Failed to fetch members: ${error.message}")            }
+                Log.e("MainActivity", "Failed to fetch members: ${error.message}")
+            }
         })
     }
 
+    override fun onDeleteClick(position: Int) {
+        // Get the ID of the reminder you want to delete
+        val reminderToDelete = memberArrayList[position]
+
+        // Assuming each Member has a unique ID field
+        val reminderId = reminderToDelete.RemID
+
+        deleteReminderFromFirebase(reminderId, position)
+    }
+
+    private fun deleteReminderFromFirebase(reminderId: String, position: Int) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
+        dbref =
+            FirebaseDatabase.getInstance().getReference("Users").child(userId).child("Reminders")
+                .child(reminderId)
+
+        dbref.removeValue().addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                Toast.makeText(this, "Reminder deleted successfully", Toast.LENGTH_SHORT).show()
+                // Remove the item from your list and notify the adapter
+                if (position >= 0 && position < memberArrayList.size) {
+                    memberArrayList.removeAt(position)
+                    memberRecyclerView.adapter?.notifyItemRemoved(position)
+                    memberRecyclerView.adapter?.notifyItemRangeChanged(
+                        position,
+                        memberArrayList.size - position
+                    )
+                    Toast.makeText(this, "Reminder deleted successfully", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "Failed to delete reminder", Toast.LENGTH_SHORT).show()
 
 
+                }
+            }
+        }
+    }
+    override fun onResume() {
+        super.onResume()
+        refreshReminders() // Refresh your list of reminders
+    }
 
+    private fun refreshReminders() {
+        isDataFetchedInitially = false
+        getUserData() // Call your existing method to fetch data
+    }
 }
+
+
+

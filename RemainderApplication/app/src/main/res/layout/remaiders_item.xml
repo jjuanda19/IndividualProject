@@ -88,10 +88,14 @@
                 />
 
         </LinearLayout>
+
+        <ImageView
+            android:id="@+id/imageViewbin"
+            android:layout_width="60dp"
+            android:layout_height="44dp"
+            app:srcCompat="@drawable/ic_action_name" />
+
     </LinearLayout>
-
-
-
 
 
 </androidx.cardview.widget.CardView>

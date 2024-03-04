@@ -13,33 +13,27 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.Manifest
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
-import android.os.Message
 import android.util.Log
 
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
-import androidx.core.app.NotificationCompat
+
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.Geofence
-import com.google.android.gms.location.GeofenceStatusCodes
 import com.google.android.gms.location.GeofencingClient
 import com.google.android.gms.location.GeofencingRequest
 import com.google.android.gms.location.LocationServices
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
+import com.google.firebase.auth.FirebaseAuth
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.database.ValueEventListener
 
-import kotlin.random.Random
+
+
 
 const val GEOFENCE_LOCATION_REQUEST_CODE =12345
 const val GEOFENCE_RADIUS=100
@@ -56,10 +50,14 @@ class HubActivity : AppCompatActivity() {
     private var longitude: String = ""
     private lateinit var remainderName: EditText
     private lateinit var geofencingClient: GeofencingClient
+    private lateinit var auth: FirebaseAuth
+
 
 
     companion object {
         const val MAP_ACTIVITY_REQUEST_CODE = 100 // A unique request code
+        const val ACTION_GEOFENCE_EVENT = "com.example.remainderapplication.ACTION_GEOFENCE_EVENT"
+
 
 
     }
@@ -67,12 +65,12 @@ class HubActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_hub)
+        auth = FirebaseAuth.getInstance()
 
         tvDatePicker = findViewById(R.id.tvDate)
         btDatePicker = findViewById(R.id.button_date)
         btSavedata = findViewById(R.id.bt_savedata)
         remainderName = findViewById(R.id.RemainderName)
-        reff = FirebaseDatabase.getInstance().getReference().child("Member")
         geofencingClient = LocationServices.getGeofencingClient(this)
 
 
@@ -125,57 +123,47 @@ class HubActivity : AppCompatActivity() {
     }
 
     private fun saveData() {
-        val Date = tvDatePicker.text.toString()
-        val Name = remainderName.text.toString()
-        val address =
-            findViewById<TextView>(R.id.textAddress).text.toString() // Assuming you stored this value
-
-        // Convert latitude and longitude from String to Double
-        val latitudeDouble = latitude.toDoubleOrNull()
-        val longitudeDouble = longitude.toDoubleOrNull()
-        if (Name.isEmpty()) {
-            remainderName.error = "Please select a name for the Remainder"
-            return // Stop execution if validation fails
-        }
-        if (Date.isEmpty()) {
-            tvDatePicker.error = "Please select a date"
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Toast.makeText(this, "No authenticated user found. Please log in.", Toast.LENGTH_SHORT).show()
             return
         }
-        if (address.isEmpty()) {
-            Toast.makeText(this, "Please select an address", Toast.LENGTH_SHORT).show()
-            return // Stop execution if validation fails
+
+        val userUid = currentUser.uid // Get the unique user ID from Firebase Auth
+        val email = currentUser.email ?: "Unknown" // Handle null email
+        val Date = tvDatePicker.text.toString()
+        val Name = remainderName.text.toString()
+        val address = findViewById<TextView>(R.id.textAddress).text.toString()
+        val latitudeDouble = latitude.toDoubleOrNull()
+        val longitudeDouble = longitude.toDoubleOrNull()
+
+        if (Name.isEmpty() || Date.isEmpty() || address.isEmpty() || latitudeDouble == null || longitudeDouble == null) {
+            Toast.makeText(this, "Please make sure all fields are correctly filled", Toast.LENGTH_SHORT).show()
+            return // Validate all fields are filled
         }
-        if (latitudeDouble == null || longitudeDouble == null) {
-            Toast.makeText(this, "Invalid latitude or longitude", Toast.LENGTH_SHORT).show()
-            return // Stop execution if conversion fails
-        }
+
+        val usersRef = FirebaseDatabase.getInstance().getReference("Users")
+        val RemID = usersRef.child(userUid).child("Reminders").push().key!!
 
 
-        val RemID = reff.push().key!!
+        val newReminder = Member(RemID, Name, address, longitudeDouble, latitudeDouble, Date)
 
-        val Member = Member(RemID, Name, address, longitudeDouble, latitudeDouble, Date)
-
-        reff.child(RemID).setValue(Member)
-            .addOnCompleteListener {
-                Toast.makeText(this, "Data saved", Toast.LENGTH_SHORT).show()
-                createGeofence(RemID,latitudeDouble,longitudeDouble, geofencingClient)
-                Log.d("saveData", "Saving Reminder: $RemID, Date: $Date")
-
+        usersRef.child(userUid).child("email").setValue(email) // Always set/update the email
+        usersRef.child(userUid).child("Reminders").child(RemID).setValue(newReminder)
+            .addOnSuccessListener {
+                Toast.makeText(this@HubActivity, "Reminder saved successfully", Toast.LENGTH_SHORT).show()
+                createGeofence(RemID, latitudeDouble, longitudeDouble, geofencingClient)
                 finish()
-
-            }.addOnFailureListener { err ->
-                Toast.makeText(this, "Error ${err.message}", Toast.LENGTH_SHORT).show()
-
             }
-
+            .addOnFailureListener { e ->
+                Toast.makeText(this@HubActivity, "Failed to save reminder: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
     }
-    // Override onActivityResult to handle the result from MapActivity
-
 
     private fun updateLable(myCalendar: Calendar) {
         val myFormat = "dd-MM-yyyy"
         val sdf = SimpleDateFormat(myFormat, Locale.UK)
-        tvDatePicker.setText(sdf.format(myCalendar.time))
+        tvDatePicker.text =sdf.format(myCalendar.time)
 
     }
     private fun createGeofence(RemID: String, latitudeDouble: Double, longitudeDouble: Double,geofencingClient: GeofencingClient ) {
@@ -189,19 +177,21 @@ class HubActivity : AppCompatActivity() {
             ).setLoiteringDelay(GEOFENCE_DWELL_DELAY)
             .build()
 
-        val geofenceRequest = GeofencingRequest.Builder()
-            .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+        val geofenceRequest = GeofencingRequest.Builder().apply {
+            setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
             .addGeofence(geofence)
-            .build()
+        }.build()
 
-        val intent = Intent(this,GeofenceReceiver::class.java)
-            .putExtra("RemID",RemID)
-            .putExtra("message","Geofence detected!!")
+        val intent = Intent(this,GeofenceReceiver::class.java).apply {
 
-        val uniqueRequestCode=RemID.hashCode()
+            putExtra("UserID", FirebaseAuth.getInstance().currentUser?.uid)
+            putExtra("RemID", RemID)
+        }
+
+        val uniqueRequestCode=(FirebaseAuth.getInstance().currentUser?.uid + RemID).hashCode()
         val pendingIntent = PendingIntent.getBroadcast(
             applicationContext,
-            uniqueRequestCode,intent,PendingIntent.FLAG_UPDATE_CURRENT
+            uniqueRequestCode,intent,PendingIntent.FLAG_MUTABLE
         )
         if (Build.VERSION.SDK_INT>=Build.VERSION_CODES.Q){
             if(ContextCompat.checkSelfPermission(
@@ -214,12 +204,15 @@ class HubActivity : AppCompatActivity() {
                 )
             }else{
                 geofencingClient.addGeofences(geofenceRequest,pendingIntent)
+                Log.d("HubActivity", "Geofence added with ID: $RemID")
 
             }
         }else{
             geofencingClient.addGeofences(geofenceRequest,pendingIntent)
 
         }
+
+
     }
 
     override fun onRequestPermissionsResult(
@@ -238,7 +231,6 @@ class HubActivity : AppCompatActivity() {
         }
 
     }
-
 
 
 }

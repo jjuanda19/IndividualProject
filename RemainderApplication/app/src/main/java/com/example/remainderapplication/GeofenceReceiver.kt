@@ -32,6 +32,9 @@ class GeofenceReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
         Log.d("GeofenceReceiver", "onReceive triggered")
+        intent?.extras?.keySet()?.forEach { key ->
+            Log.d("GeofenceReceiver", "Extra $key: ${intent.extras?.get(key)}")
+        }
 
         val geofencingEvent = intent?.let { GeofencingEvent.fromIntent(it) }
         if (geofencingEvent?.hasError() == true) {
@@ -40,25 +43,31 @@ class GeofenceReceiver : BroadcastReceiver() {
             return
         }
 
-        // Check for null context
-        if (context == null) {
-            Log.e("GeofenceReceiver", "Context is null")
+        // Retrieve UserID and RemID from the intent
+        val userId = intent?.getStringExtra("UserID")
+        val remId = intent?.getStringExtra("RemID")
+        Log.d("GeofenceReceiver", "UserID from intent: $userId")
+        Log.d("GeofenceReceiver", "RemID from intent: $remId")
+
+        if (userId == null || remId == null) {
+            Log.e("GeofenceReceiver", "Intent is missing UserID or RemID")
             return
+        // Stop execution if UserID or RemID is missing
         }
 
         // Handle each transition type distinctly
         when (geofencingEvent?.geofenceTransition) {
             Geofence.GEOFENCE_TRANSITION_ENTER -> {
                 // Handle enter transition
-                handleTransition(context, intent, "Entered geofence area")
+                handleTransition(context, userId, remId, "Entered geofence area")
             }
             Geofence.GEOFENCE_TRANSITION_DWELL -> {
                 // Optionally handle dwell transition if needed
-                 handleTransition(context, intent, "Dwelling in geofence area")
+                handleTransition(context, userId, remId, "Dwelling in geofence area")
             }
             Geofence.GEOFENCE_TRANSITION_EXIT -> {
                 // Handle exit transition if needed
-                handleTransition(context, intent, "Leaving geofence area")
+                handleTransition(context,userId, remId, "Leaving geofence area")
             }
             else -> {
                 Log.e("GeofenceReceiver", "Unknown geofence transition")
@@ -66,28 +75,19 @@ class GeofenceReceiver : BroadcastReceiver() {
         }
     }
 
-    private fun handleTransition(context: Context, intent: Intent?, transitionMessage: String) {
-        val remId = intent?.getStringExtra("RemID") ?: run {
-            Log.e("GeofenceReceiver", "Intent is null or missing RemID")
-            return // Stop execution if 'intent' is null or RemID is not found
-        }
-        val currentDate = LocalDate.now()
+    private fun handleTransition(context: Context?,  userId: String, remId: String, transitionMessage: String) {
+
+
         // Retrieve the reminder details from Firebase
-        dbref = FirebaseDatabase.getInstance().getReference("Member").child(remId)
+        dbref = FirebaseDatabase.getInstance().getReference("Users").child(userId).child("Reminders").child(remId)
         dbref.addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val member = snapshot.getValue(Member::class.java)
                 if (member != null) {
-                    val geofenceDate = LocalDate.parse(member.date, DateTimeFormatter.ofPattern("dd-MM-yyyy"))
-                // Check if the current date is the date when the geofence should trigger
-                    if (currentDate.isEqual(geofenceDate)){
-                    Log.d("GeofenceReceiver", "Fetched Member: $member") // Log the fetched member details
-                    // Show a detailed notification with reminder details
-                    showNotification(context, member, transitionMessage, remId)}
-                    else{
-                        // The dates do not match, do not show a notification
-                        Log.d("GeofenceReceiver", "Geofence event date does not match, no notification shown.")
+
+                    context?.let { showNotification(it, member, transitionMessage, remId)
                     }
+
                 }
             }
 
@@ -104,19 +104,18 @@ class GeofenceReceiver : BroadcastReceiver() {
 
         // Create a notification channel for Android O and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(remId, "Member", NotificationManager.IMPORTANCE_DEFAULT).apply {
-                description = "Channel for Reminder notifications"
+            val channel = NotificationChannel("ReminderNotifications", "Reminders", NotificationManager.IMPORTANCE_HIGH).apply {
+                description = "Notifications for Reminders"
                 setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION), AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build())
-
             }
             notificationManager.createNotificationChannel(channel)
         }
 
-        val notification = NotificationCompat.Builder(context, remId)
+        val notification = NotificationCompat.Builder(context, "ReminderNotifications")
             .setContentTitle("$transitionMessage: ${member.name}")
             .setContentText("Location: ${member.address}")
             .setSmallIcon(R.drawable.alarm_24) // Adjust icon as needed
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
             .build()
 
         notificationManager.notify(notificationId, notification)
