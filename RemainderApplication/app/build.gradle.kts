@@ -1,3 +1,17 @@
+import java.util.*
+
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(localPropertiesFile.inputStream())
+}
+
+val weatherApiKey = localProperties.getProperty("weatherApiKey") ?: "No API Key"
+
+
+
+
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -11,6 +25,8 @@ android {
 
 
     defaultConfig {
+        android.buildFeatures.buildConfig = true
+
         applicationId = "com.example.remainderapplication"
         minSdk = 29
         targetSdk = 34
@@ -18,7 +34,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "WEATHER_API_KEY", "\"$weatherApiKey\"")   }
+
+    buildFeatures {
+        // Enable BuildConfig generation
+        buildConfig = true
     }
+
 
     buildTypes {
         release {
@@ -51,6 +74,9 @@ dependencies {
     configurations {
         implementation.get().exclude(mapOf("group" to "org.jetbrains", "module" to "annotations"))
     }
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation ("com.google.android.gms:play-services-location:21.1.0")
     implementation ("com.android.volley:volley:1.2.1")
     implementation(  "com.google.android.gms:play-services-maps:18.2.0")

@@ -4,64 +4,53 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="10dp"
-    android:layout_marginBottom="10dp"
     android:layout_marginLeft="10dp"
+    android:layout_marginTop="10dp"
     android:layout_marginRight="10dp"
+    android:layout_marginBottom="10dp"
     tools:context=".SingInActivity">
 
 
     <EditText
         android:id="@+id/editTextSingInEmail"
         android:layout_width="379dp"
-        android:layout_height="53dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="44dp"
-        android:layout_marginEnd="16dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="156dp"
+        android:layout_marginBottom="18dp"
         android:ems="10"
         android:hint="Introduce you email"
         android:inputType="text"
-        app:layout_constraintBottom_toTopOf="@+id/editTextSingInPassword"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/button_sing_in"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewSingIn" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextSingInPassword" />
 
     <EditText
         android:id="@+id/editTextSingInPassword"
-        android:layout_width="379dp"
-        android:layout_height="54dp"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="25dp"
-        android:layout_marginEnd="16dp"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
         android:ems="10"
         android:hint="Type your Password"
         android:inputType="textPassword"
-        app:layout_constraintBottom_toTopOf="@+id/button_sing_in"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextSingInEmail" />
+        app:layout_constraintBottom_toTopOf="@+id/editTextSingInEmail"
+        app:layout_constraintEnd_toEndOf="@+id/editTextSingInEmail"
+        app:layout_constraintStart_toStartOf="@+id/editTextSingInEmail"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSingIn" />
 
     <Button
         android:id="@+id/button_sing_in"
         android:layout_width="134dp"
-        android:layout_height="70dp"
-        android:layout_marginStart="138dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginEnd="139dp"
-        android:text="Sing In"
+        android:layout_height="0dp"
+        android:text="@string/singup_buttom"
         app:layout_constraintBottom_toTopOf="@+id/txtlinkSingUp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextSingInPassword" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextSingInEmail" />
 
     <TextView
         android:id="@+id/txtlinkSingUp"
-        android:layout_width="287dp"
-        android:layout_height="53dp"
-        android:layout_marginStart="62dp"
-        android:layout_marginTop="58dp"
-        android:layout_marginEnd="62dp"
-        android:layout_marginBottom="141dp"
+        android:layout_width="280dp"
+        android:layout_height="61dp"
+        android:layout_marginTop="8dp"
         android:text="@string/link_register"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -70,16 +59,13 @@
 
     <TextView
         android:id="@+id/textViewSingIn"
-        android:layout_width="336dp"
-        android:layout_height="96dp"
-        android:layout_marginStart="37dp"
-        android:layout_marginTop="87dp"
-        android:layout_marginEnd="38dp"
+        android:layout_width="302dp"
+        android:layout_height="90dp"
         android:foregroundGravity="center"
         android:gravity="center"
         android:text="@string/Sing_In_Text"
         android:textSize="34sp"
-        app:layout_constraintBottom_toTopOf="@+id/editTextSingInEmail"
+        app:layout_constraintBottom_toTopOf="@+id/editTextSingInPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

@@ -21,7 +21,7 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
-    <string name="link_register">Already have account? Click here to sing in</string>
+    <string name="link_register">Already have account? Click here to sing up</string>
     <string name="SingUpText">Sing Up</string>
     <string name="singup_buttom">Sing Up</string>
     <string name="Sing_In_Text">Welcome!! Sing In with your email</string>

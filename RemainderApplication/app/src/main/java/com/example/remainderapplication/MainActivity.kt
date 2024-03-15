@@ -1,12 +1,14 @@
 package com.example.remainderapplication
 
 import android.Manifest
+import android.app.AlertDialog
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -34,6 +36,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 import kotlin.random.Random
+import android.provider.Settings
+import android.view.View
 
 
 class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
@@ -41,6 +45,7 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
     private lateinit var dbref: DatabaseReference
     private lateinit var memberRecyclerView: RecyclerView
     private lateinit var memberArrayList: ArrayList<Member>
+    private lateinit var noRemindersTextView: TextView
 
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
     private var isCoarseLocationPermissionGranted = false
@@ -60,6 +65,7 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         memberArrayList = arrayListOf<Member>()
+        noRemindersTextView = findViewById(R.id.NoRemainderText)
 
         memberRecyclerView = findViewById(R.id.RemList)
         memberRecyclerView.layoutManager = LinearLayoutManager(this)
@@ -118,86 +124,89 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
 
     }
 
-    private fun requestPermission() {
-        isCoarseLocationPermissionGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
 
-        isFineLocationPermissionGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
+        private fun requestPermission() {
+            val permissionRequest: MutableList<String> = ArrayList()
 
-        isBackgroundLocationPermissionGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_BACKGROUND_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
+            isCoarseLocationPermissionGranted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
 
-        isInternetPermissionGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.INTERNET
-        ) == PackageManager.PERMISSION_GRANTED
+            isFineLocationPermissionGranted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
 
-        isWakeLockPermissionGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.WAKE_LOCK
-        ) == PackageManager.PERMISSION_GRANTED
+            isBackgroundLocationPermissionGranted = ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
 
-        isReadExternalStoragePermissionGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
 
-        isWriteExternalStoragePermissionGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
+            // Check if we need to request background location permission.
+            val backgroundLocationRequired = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q &&
+                    !isBackgroundLocationPermissionGranted
 
-        isManageExternalStoragePermissionGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.MANAGE_EXTERNAL_STORAGE
-        ) == PackageManager.PERMISSION_GRANTED
+            if (backgroundLocationRequired) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    // For Android 11 and above, direct the user to settings as background permission request
+                    // cannot be combined with other permissions
+                    AlertDialog.Builder(this)
+                        .setTitle("Background Location Permission")
+                        .setMessage("This app needs background location to offer...")
+                        .setPositiveButton("OK") { _, _ ->
+                            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                            val uri = Uri.fromParts("package", packageName, null)
+                            intent.data = uri
+                            startActivity(intent)
+                        }
+                        .setNegativeButton("Cancel", null)
+                        .create()
+                        .show()
+                } else if( Build.VERSION.SDK_INT == Build.VERSION_CODES.Q) {
+                    // For Android 10, request the background location permission directly
+                    permissionRequest.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                }
+            }
 
-        isNetworkPermissionGranted = ContextCompat.checkSelfPermission(
-            this,
-            Manifest.permission.ACCESS_NETWORK_STATE
-        ) == PackageManager.PERMISSION_GRANTED
+            // Common permissions for all Android versions
+            if (!isCoarseLocationPermissionGranted) {
+                permissionRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
 
-        val permissionRequest: MutableList<String> = ArrayList()
+            }
+            if (!isFineLocationPermissionGranted) {
+                permissionRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
+            }
 
-        if (!isCoarseLocationPermissionGranted) {
-            permissionRequest.add(Manifest.permission.ACCESS_COARSE_LOCATION)
 
+            if (!isInternetPermissionGranted) {
+                permissionRequest.add(Manifest.permission.INTERNET)
+            }
+            if (!isWakeLockPermissionGranted) {
+                permissionRequest.add(Manifest.permission.WAKE_LOCK)
+            }
+            if (!isReadExternalStoragePermissionGranted) {
+                permissionRequest.add(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
+            if (!isWriteExternalStoragePermissionGranted) {
+                permissionRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R && !isManageExternalStoragePermissionGranted) {
+                // For Android 11 and above, manage external storage permission is a special case
+                permissionRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && !isManageExternalStoragePermissionGranted) {
+                permissionRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+            if (!isNetworkPermissionGranted) {
+                permissionRequest.add(Manifest.permission.ACCESS_NETWORK_STATE)
+            }
+
+            if (permissionRequest.isNotEmpty()) {
+                permissionLauncher.launch(permissionRequest.toTypedArray())
+            }
         }
-        if (!isFineLocationPermissionGranted) {
-            permissionRequest.add(Manifest.permission.ACCESS_FINE_LOCATION)
-        }
-        if (!isBackgroundLocationPermissionGranted) {
-            permissionRequest.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
-        }
-        if (!isInternetPermissionGranted) {
-            permissionRequest.add(Manifest.permission.INTERNET)
-        }
-        if (!isWakeLockPermissionGranted) {
-            permissionRequest.add(Manifest.permission.WAKE_LOCK)
-        }
-        if (!isReadExternalStoragePermissionGranted) {
-            permissionRequest.add(Manifest.permission.READ_EXTERNAL_STORAGE)
-        }
-        if (!isWriteExternalStoragePermissionGranted) {
-            permissionRequest.add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
-        if (!isManageExternalStoragePermissionGranted) {
-            permissionRequest.add(Manifest.permission.MANAGE_EXTERNAL_STORAGE)
-        }
-        if (!isNetworkPermissionGranted) {
-            permissionRequest.add(Manifest.permission.ACCESS_NETWORK_STATE)
-        }
-        if (permissionRequest.isNotEmpty()) {
-            permissionLauncher.launch(permissionRequest.toTypedArray())
-        }
-    }
+
 
     private fun getUserData() {
 
@@ -224,6 +233,7 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
                         }
                     }
                         memberRecyclerView.adapter?.notifyDataSetChanged()
+                        toggleNoRemindersTextView()
                         isDataFetchedInitially = true
                 }
             }
@@ -232,6 +242,9 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
                 Log.e("MainActivity", "Failed to fetch members: ${error.message}")
             }
         })
+    }
+    private fun toggleNoRemindersTextView() {
+        noRemindersTextView.visibility = if (memberArrayList.isEmpty()) View.VISIBLE else View.GONE
     }
 
     override fun onDeleteClick(position: Int) {
@@ -261,6 +274,7 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
                         position,
                         memberArrayList.size - position
                     )
+                    toggleNoRemindersTextView()
                     Toast.makeText(this, "Reminder deleted successfully", Toast.LENGTH_SHORT).show()
                 } else {
                     Toast.makeText(this, "Failed to delete reminder", Toast.LENGTH_SHORT).show()

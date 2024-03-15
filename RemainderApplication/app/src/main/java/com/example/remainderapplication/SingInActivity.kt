@@ -1,5 +1,6 @@
 package com.example.remainderapplication
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -29,7 +30,7 @@ class SingInActivity : AppCompatActivity() {
         txtemail= findViewById(R.id.editTextSingInEmail)
         txtpassword=findViewById(R.id.editTextSingInPassword)
         txtlink=findViewById(R.id.txtlinkSingUp)
-        buttonSingIn=findViewById(R.id.button_sing_up)
+        buttonSingIn=findViewById(R.id.button_sing_in)
         auth = FirebaseAuth.getInstance()
 
         val content = SpannableString(txtlink.text.toString())
@@ -45,6 +46,7 @@ class SingInActivity : AppCompatActivity() {
 
         }
     }
+
 
     private fun singIn(){
         val email: String = txtemail.text.toString().trim()

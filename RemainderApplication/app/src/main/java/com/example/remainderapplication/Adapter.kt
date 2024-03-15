@@ -32,6 +32,7 @@ class Adapter(private val memberList: ArrayList<Member>,private val listener: On
         holder.RemName.text=curretitem.name
         holder.RemAddress.text=curretitem.address
         holder.RemDate.text=curretitem.date
+        holder.RemDescription.text=curretitem.description
         holder.imagebin.setOnClickListener {
             val adapterPosition = holder.adapterPosition
             if (adapterPosition != RecyclerView.NO_POSITION) {
@@ -50,7 +51,7 @@ class Adapter(private val memberList: ArrayList<Member>,private val listener: On
         val RemAddress: TextView= itemView.findViewById(R.id.RemAddress)
         val RemDate: TextView= itemView.findViewById(R.id.RemDate)
         val imagebin: ImageView= itemView.findViewById(R.id.imageViewbin)
-
+        val RemDescription: TextView= itemView.findViewById(R.id.RemDescrip)
 
 
     }

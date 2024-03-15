@@ -55,27 +55,21 @@ class GeofenceReceiver : BroadcastReceiver() {
         // Stop execution if UserID or RemID is missing
         }
 
-        // Handle each transition type distinctly
-        when (geofencingEvent?.geofenceTransition) {
-            Geofence.GEOFENCE_TRANSITION_ENTER -> {
-                // Handle enter transition
-                handleTransition(context, userId, remId, "Entered geofence area")
-            }
-            Geofence.GEOFENCE_TRANSITION_DWELL -> {
-                // Optionally handle dwell transition if needed
-                handleTransition(context, userId, remId, "Dwelling in geofence area")
-            }
-            Geofence.GEOFENCE_TRANSITION_EXIT -> {
-                // Handle exit transition if needed
-                handleTransition(context,userId, remId, "Leaving geofence area")
-            }
-            else -> {
-                Log.e("GeofenceReceiver", "Unknown geofence transition")
-            }
+        val geofenceTransition = geofencingEvent?.geofenceTransition
+        val transitionMessage = when (geofenceTransition) {
+            Geofence.GEOFENCE_TRANSITION_ENTER -> "Do not forget to"
+            Geofence.GEOFENCE_TRANSITION_DWELL -> "Did you already"
+            Geofence.GEOFENCE_TRANSITION_EXIT -> "Hope you have achieved your task"
+            else -> "Unknown geofence transition at"
         }
+
+        // Pass the transition message directly to handleTransition
+        handleTransition(context, userId, remId, transitionMessage, geofenceTransition)
+
+
     }
 
-    private fun handleTransition(context: Context?,  userId: String, remId: String, transitionMessage: String) {
+    private fun handleTransition(context: Context?,  userId: String, remId: String, transitionMessage: String, transitionType: Int?) {
 
 
         // Retrieve the reminder details from Firebase
@@ -84,12 +78,23 @@ class GeofenceReceiver : BroadcastReceiver() {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val member = snapshot.getValue(Member::class.java)
                 if (member != null) {
+                    val formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
+                    val reminderDate = LocalDate.parse(member.date, formatter)
+                    val currentDate = LocalDate.now()
 
-                    context?.let { showNotification(it, member, transitionMessage, remId)
+                    if (reminderDate.isEqual(currentDate)) {
+                        context?.let {
+                            showNotification(it, member, transitionMessage, remId, transitionType)
+                            dbref.child("actStatus").setValue(true)
+                        }
+                    } else {
+                        // Optionally, set the geofence activation status to 0 if the conditions are not met
+                        dbref.child("actStatus").setValue(false)
                     }
-
                 }
             }
+
+
 
             override fun onCancelled(error: DatabaseError) {
                 Log.e("GeofenceReceiver", "Failed to fetch reminder details: ${error.message}")
@@ -97,11 +102,17 @@ class GeofenceReceiver : BroadcastReceiver() {
         })
     }
 
-    private fun showNotification(context: Context, member: Member, transitionMessage: String, remId: String) {
+    private fun showNotification(context: Context, member: Member, transitionMessage: String, remId: String,transitionType: Int?) {
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationId = remId.hashCode() // Example to derive notification ID from remID
 
-
+        // Determine the message based on transition type
+        val detailedMessage = when (transitionType) {
+            Geofence.GEOFENCE_TRANSITION_ENTER -> "$transitionMessage ${member.name}"
+            Geofence.GEOFENCE_TRANSITION_DWELL -> "$transitionMessage ${member.name} ?"
+            Geofence.GEOFENCE_TRANSITION_EXIT -> "$transitionMessage ${member.name}"
+            else -> "You're near ${member.name}'s location"
+        }
         // Create a notification channel for Android O and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel("ReminderNotifications", "Reminders", NotificationManager.IMPORTANCE_HIGH).apply {
@@ -111,9 +122,10 @@ class GeofenceReceiver : BroadcastReceiver() {
             notificationManager.createNotificationChannel(channel)
         }
 
+
         val notification = NotificationCompat.Builder(context, "ReminderNotifications")
-            .setContentTitle("$transitionMessage: ${member.name}")
-            .setContentText("Location: ${member.address}")
+            .setContentTitle(detailedMessage)
+            .setContentText("At ${member.address}")
             .setSmallIcon(R.drawable.alarm_24) // Adjust icon as needed
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .build()
