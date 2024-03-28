@@ -68,7 +68,7 @@ class HubActivity : AppCompatActivity() {
             100 // Unique request code for starting the MapActivity.
 
 
-        val API: String = "7d69c4543ba6d50c2d5cc7bd6a7669ea" // OpenWeather API key
+        val API: String = "YOUR_API_KEY" // OpenWeather API key
 
 
     }
