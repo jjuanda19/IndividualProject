@@ -81,7 +81,9 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCZ69NYFRuOQDfIuWltNvNwB-2vEcNNWcI" />
+            android:"API_KEY" />
+            //Paste your API KEY HERE
+
 
         <activity
             android:name=".HubActivity"
