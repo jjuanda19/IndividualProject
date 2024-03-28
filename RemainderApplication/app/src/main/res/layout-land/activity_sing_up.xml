@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="10dp"
+    android:layout_marginTop="10dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginBottom="10dp"
+    tools:context=".SingUpActivity">
+
+    <EditText
+        android:id="@+id/editTextEmail"
+        android:layout_width="340dp"
+        android:layout_height="56dp"
+        android:layout_marginTop="81dp"
+        android:layout_marginBottom="67dp"
+        android:ems="10"
+        android:hint="Introduce you email"
+        android:inputType="text"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextTextPassword"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textViewSingUp" />
+
+    <EditText
+        android:id="@+id/editTextTextPassword"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="1dp"
+        android:ems="10"
+        android:hint="Type your Password"
+        android:inputType="textPassword"
+        app:layout_constraintBottom_toTopOf="@+id/editTextTextRetypePassword"
+        app:layout_constraintEnd_toEndOf="@+id/editTextTextRetypePassword"
+        app:layout_constraintStart_toStartOf="@+id/editTextEmail"
+        app:layout_constraintTop_toBottomOf="@+id/textViewSingUp" />
+
+    <EditText
+        android:id="@+id/editTextTextRetypePassword"
+        android:layout_width="343dp"
+        android:layout_height="0dp"
+        android:ems="10"
+        android:hint="Retype your Password"
+        android:inputType="textPassword"
+        app:layout_constraintBottom_toTopOf="@+id/txtlinkSingUp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextPassword" />
+
+    <Button
+        android:id="@+id/button_sing_in"
+        android:layout_width="123dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="3dp"
+        android:text="@string/singup_buttom"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtlinkSingUp" />
+
+    <TextView
+        android:id="@+id/txtlinkSingUp"
+        android:layout_width="286dp"
+        android:layout_height="0dp"
+        android:layout_marginBottom="11dp"
+        android:text="@string/link_register"
+        app:layout_constraintBottom_toTopOf="@+id/button_sing_in"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextTextRetypePassword" />
+
+    <TextView
+        android:id="@+id/textViewSingUp"
+        android:layout_width="161dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="55dp"
+        android:foregroundGravity="center"
+        android:gravity="center"
+        android:text="@string/SingUpText"
+        android:textSize="34sp"
+        app:layout_constraintBottom_toTopOf="@+id/editTextTextPassword"
+        app:layout_constraintEnd_toEndOf="@+id/editTextEmail"
+        app:layout_constraintStart_toStartOf="@+id/editTextEmail"
+        app:layout_constraintTop_toTopOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

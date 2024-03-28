@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Remainder Application</string>
+    <string name="add_remainder_button">+</string>
+    <string name="Nothing_Yet">No Remainders Yet</string>
+    <string name="title_activity_hub">Hub_Activity</string>
+    <string name="Name_Remainder">Introduce your remainder name</string>
+    <string name="Date_button">Choose a date</string>
+    <string name="Location_button">Pick a location</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="action_geolocate">Pick Place</string>
+    <string name="default_info_title">Default Location</string>
+    <string name="default_info_snippet">No places found, because location permission is disabled.</string>
+    <string name="save_address_button">Save Address</string>
+    <string name="save_remainder">Save Remainder</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string name="link_register">Already have account? Click here to sign up</string>
+    <string name="SingUpText">Sign Up</string>
+    <string name="singup_buttom">Sign Up</string>
+    <string name="Sing_In_Text">Welcome!! Sign In with your email</string>
+</resources>

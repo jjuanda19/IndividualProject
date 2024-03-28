@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <item name="colorPrimary" >@color/colorPrimary</item>
+        <item name="colorPrimaryDark" >@color/colorPrimaryDark</item>
+        <item name="colorAccent" >@color/colorAccent</item>
+        <item name="buttonStyle">@style/RoundedButton</item>
+    </style>
+
+    <style name="RoundedButton" parent="Widget.AppCompat.Button">
+        <item name="android:background">@drawable/buttons</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="android:padding">16dp</item>
+
+    </style>
+    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+    <style name="DatePickerDialogTheme" parent="Theme.AppCompat.Light.Dialog">
+        <!-- Customize your theme here. -->
+        <item name="colorAccent">@color/colorAccent</item> <!-- Used for the default date in the calendar -->
+        <item name="android:textColorPrimary">@color/black</item> <!-- Used for the calendar date numbers -->
+        <item name="android:textColorSecondary">@color/black</item> <!-- Used for the calendar header -->
+    </style>
+
+
+</resources>
