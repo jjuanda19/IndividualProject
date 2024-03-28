@@ -48,7 +48,7 @@
         android:layout_marginStart="138dp"
         android:layout_marginTop="50dp"
         android:layout_marginEnd="139dp"
-        android:text="Sing In"
+        android:text="Sign In"
         app:layout_constraintBottom_toTopOf="@+id/txtlinkSingUp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,6 +81,7 @@
         android:textSize="34sp"
         app:layout_constraintBottom_toTopOf="@+id/editTextSingInEmail"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.473"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 

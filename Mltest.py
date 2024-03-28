@@ -1,3 +1,4 @@
+from lib2to3.pytree import convert
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import re
@@ -10,6 +11,9 @@ from sklearn.preprocessing import LabelEncoder
 from tensorflow.keras.callbacks import EarlyStopping
 import tensorflow as tf
 import numpy as np
+from tensorflow import keras
+#from tensorflow.contrib import lite
+import os
 
 
 # Load the dataset
@@ -59,9 +63,9 @@ y_test_categorical = to_categorical(y_test)
 
 model = Sequential([
     Embedding(input_dim=1000, output_dim=64),  # Increase output dimensions
-    Bidirectional(LSTM(64, return_sequences=True)),
+    Bidirectional(LSTM(50, return_sequences=True)),
     GlobalAveragePooling1D(),
-    Dense(64, activation='relu'),  # Increase number of neurons
+    Dense(50, activation='relu'),  # Increase number of neurons
     Dropout(0.5),  # Add dropout for regularization
     Dense(len(encoder.classes_), activation='softmax')
 ])
@@ -76,7 +80,7 @@ early_stopping = EarlyStopping(monitor='val_loss', patience=3)
 
 # Train the model with early stopping
 model.fit(X_train_padded, y_train_categorical,
-          epochs=100,
+          epochs=20,
           validation_data=(X_test_padded, y_test_categorical),
           verbose=2,
           callbacks=[early_stopping])
@@ -84,10 +88,25 @@ model.fit(X_train_padded, y_train_categorical,
 loss, accuracy = model.evaluate(X_test_padded, y_test_categorical, verbose=2)
 print(f"Test accuracy: {accuracy}")
 # Prepare a single text for prediction
-texts = ["Renew my gym membership"]
+texts = ['Mail letter',
+             'Do jog',
+             'Buy a coffe with my friends ',
+             'Buy carrots',
+             'Meet jose at the park',
+             'Do gym',
+             'Renew netflix',
+             "Hang out with my friends",
+             'Dog vet visit',
+             'Training at gym']
+
 input_data = pad_sequences(tokenizer.texts_to_sequences([basic_clean_text(text) for text in texts]), maxlen=max_length, padding='post')
 
 # Predict and print the label for the text
 predicted_class_indices = np.argmax(model.predict(input_data), axis=1)
 predicted_labels = encoder.inverse_transform(predicted_class_indices)
-print(f"Text: {texts[0]} - Predicted label: {predicted_labels[0]}")
+print(f"Text: {texts} - Predicted label: {predicted_labels}")
+
+
+
+
+

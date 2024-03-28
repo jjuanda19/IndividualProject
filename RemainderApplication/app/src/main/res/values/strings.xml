@@ -4,7 +4,7 @@
     <string name="Nothing_Yet">No Remainders Yet</string>
     <string name="title_activity_hub">Hub_Activity</string>
     <string name="Name_Remainder">Introduce your remainder name</string>
-    <string name="Date_button">Chose a date</string>
+    <string name="Date_button">Choose a date</string>
     <string name="Location_button">Pick a location</string>
     <string name="title_activity_maps">Map</string>
     <string name="action_geolocate">Pick Place</string>
@@ -21,8 +21,8 @@
     <string name="invalid_username">Not a valid username</string>
     <string name="invalid_password">Password must be >5 characters</string>
     <string name="login_failed">"Login failed"</string>
-    <string name="link_register">Already have account? Click here to sing up</string>
-    <string name="SingUpText">Sing Up</string>
-    <string name="singup_buttom">Sing Up</string>
-    <string name="Sing_In_Text">Welcome!! Sing In with your email</string>
+    <string name="link_register">Already have account? Click here to sign up</string>
+    <string name="SingUpText">Sign Up</string>
+    <string name="singup_buttom">Sign Up</string>
+    <string name="Sing_In_Text">Welcome!! Sign In with your email</string>
 </resources>

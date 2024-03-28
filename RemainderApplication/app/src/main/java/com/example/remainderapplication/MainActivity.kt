@@ -2,10 +2,7 @@ package com.example.remainderapplication
 
 import android.Manifest
 import android.app.AlertDialog
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
-import android.content.Context
+
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -20,34 +17,30 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.vo.Database
-import com.google.android.gms.location.Geofence
-import com.google.android.gms.location.GeofencingClient
-import com.google.android.gms.location.GeofencingRequest
-import com.google.android.gms.location.LocationServices
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
-import kotlin.random.Random
 import android.provider.Settings
 import android.view.View
 
 
+// MainActivity extends AppCompatActivity and implements the OnItemDeleteListener interface from the Adapter class.
 class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
 
-    private lateinit var dbref: DatabaseReference
-    private lateinit var memberRecyclerView: RecyclerView
-    private lateinit var memberArrayList: ArrayList<Member>
-    private lateinit var noRemindersTextView: TextView
+    private lateinit var dbref: DatabaseReference // Reference to the Firebase database.
+    private lateinit var memberRecyclerView: RecyclerView // RecyclerView for displaying the list of members (reminders).
+    private lateinit var memberArrayList: ArrayList<Member> // ArrayList to hold the members (reminders).
+    private lateinit var noRemindersTextView: TextView // TextView to show when there are no reminders.
 
+    // Variables for managing permission requests using the new ActivityResultLauncher.
     private lateinit var permissionLauncher: ActivityResultLauncher<Array<String>>
+    // Permissions flags to keep track of which permissions have been granted.
     private var isCoarseLocationPermissionGranted = false
     private var isFineLocationPermissionGranted = false
     private var isBackgroundLocationPermissionGranted = false
@@ -57,13 +50,15 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
     private var isWriteExternalStoragePermissionGranted = false
     private var isManageExternalStoragePermissionGranted = false
     private var isNetworkPermissionGranted = false
-    private lateinit var singouttext: TextView
-    private var isDataFetchedInitially = false
+
+    private lateinit var singouttext: TextView // TextView for the sign-out option.
+    private var isDataFetchedInitially = false // Flag to track if data has been initially fetched.
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        // Initialization of variables and setting up the RecyclerView.
         memberArrayList = arrayListOf<Member>()
         noRemindersTextView = findViewById(R.id.NoRemainderText)
 
@@ -71,23 +66,43 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
         memberRecyclerView.layoutManager = LinearLayoutManager(this)
         memberRecyclerView.setHasFixedSize(true)
         memberRecyclerView.adapter = Adapter(memberArrayList, this)
+
+        // Fetch user data to populate the RecyclerView.
         getUserData()
 
+        // Setting up the sign-out TextView.
         singouttext = findViewById(R.id.textSingOut)
 
         val content = SpannableString(singouttext.text.toString())
         content.setSpan(UnderlineSpan(), 0, content.length, 0)
         singouttext.text = content
-
         singouttext.setOnClickListener {
-            intent = Intent(this, SingInActivity::class.java)
+            // Navigates to the SignInActivity when the sign-out text is clicked.
+            intent = Intent(this, SignInActivity::class.java)
             startActivity(intent)
             finish()
         }
 
+        // Initialize and request permissions.
+        initPermissionLauncher()
+        requestPermission()
 
+        // Button to add a new reminder.
+        val buttonAddReminder = findViewById<Button>(R.id.buttonAddReminder)
+        buttonAddReminder.setOnClickListener {
+            // Navigates to the HubActivity when the add reminder button is clicked.
+            val intent = Intent(this, HubActivity::class.java)
+            startActivity(intent)
+        }
+
+    }
+
+    // Initializes the permission launcher which is a part of the new Android permissions
+    private fun initPermissionLauncher(){
         permissionLauncher =
             registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+                // Update permission flags based on user response.
+                // Proceed with app functionality if permissions are granted, otherwise show a dialog to retry or exit.
                 isCoarseLocationPermissionGranted =
                     permissions[Manifest.permission.ACCESS_COARSE_LOCATION]
                         ?: isCoarseLocationPermissionGranted
@@ -112,20 +127,35 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
                         ?: isManageExternalStoragePermissionGranted
                 isNetworkPermissionGranted = permissions[Manifest.permission.ACCESS_NETWORK_STATE]
                     ?: isNetworkPermissionGranted
-
+                if (permissions.values.any { !it }) {
+                    // Not all permissions were granted, show rationale and request again
+                    AlertDialog.Builder(this, R.style.DatePickerDialogTheme)
+                        .setTitle("Permissions required")
+                        .setMessage("All requested permissions are necessary for the app to function properly. Please grant them.")
+                        .setPositiveButton("Retry") { _, _ ->
+                            requestPermission() // Request permissions again
+                        }
+                        .setNegativeButton("Exit") { _, _ ->
+                            Toast.makeText(this, "The app cannot function without the required permissions.", Toast.LENGTH_LONG).show()
+                            finish() // Close app or navigate the user to a non-functional part of your app
+                        }
+                        .create()
+                        .show()
+                } else {
+                    // All permissions were granted, you can proceed with your app functionality
+                    // TODO: Add your app's functionality here
+                }
             }
-        requestPermission()
 
-        val buttonAddReminder = findViewById<Button>(R.id.buttonAddReminder)
-        buttonAddReminder.setOnClickListener {
-            val intent = Intent(this, HubActivity::class.java)
-            startActivity(intent)
-        }
+
+
 
     }
 
-
+    // Requests the necessary permissions for the app to function.
         private fun requestPermission() {
+        // Builds the list of permissions to request and checks if each permission has been granted.
+        // If necessary, launches the permission request.
             val permissionRequest: MutableList<String> = ArrayList()
 
             isCoarseLocationPermissionGranted = ContextCompat.checkSelfPermission(
@@ -152,9 +182,9 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                     // For Android 11 and above, direct the user to settings as background permission request
                     // cannot be combined with other permissions
-                    AlertDialog.Builder(this)
+                    AlertDialog.Builder(this, R.style.DatePickerDialogTheme)
                         .setTitle("Background Location Permission")
-                        .setMessage("This app needs background location to offer...")
+                        .setMessage("This app needs background location, please enable location to allow all time.")
                         .setPositiveButton("OK") { _, _ ->
                             val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                             val uri = Uri.fromParts("package", packageName, null)
@@ -207,9 +237,9 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
             }
         }
 
-
+    // Fetches user data from Firebase and updates the RecyclerView.
     private fun getUserData() {
-
+        // Implementation to fetch user data from Firebase.
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId == null) {
             Log.e("MainActivity", "User is not logged in.")
@@ -243,10 +273,12 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
             }
         })
     }
+    // Toggles the visibility of the noRemindersTextView based on whether there are reminders to show.
     private fun toggleNoRemindersTextView() {
         noRemindersTextView.visibility = if (memberArrayList.isEmpty()) View.VISIBLE else View.GONE
     }
 
+    // Handles the deletion of a reminder when the delete icon is clicked in the RecyclerView.
     override fun onDeleteClick(position: Int) {
         // Get the ID of the reminder you want to delete
         val reminderToDelete = memberArrayList[position]
@@ -257,6 +289,7 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
         deleteReminderFromFirebase(reminderId, position)
     }
 
+    // Implementation to delete a reminder from Firebase.
     private fun deleteReminderFromFirebase(reminderId: String, position: Int) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid ?: return
         dbref =
@@ -284,9 +317,11 @@ class MainActivity : AppCompatActivity(), Adapter.OnItemDeleteListener {
             }
         }
     }
+
+    // Refreshes the reminders list when the activity resumes.
     override fun onResume() {
         super.onResume()
-        refreshReminders() // Refresh your list of reminders
+        refreshReminders()
     }
 
     private fun refreshReminders() {

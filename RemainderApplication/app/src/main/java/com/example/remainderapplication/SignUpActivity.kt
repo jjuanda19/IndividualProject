@@ -43,8 +43,8 @@ class SingUpActivity : AppCompatActivity() {
         val content = SpannableString(txtLinkSingUp.text.toString())
         content.setSpan(UnderlineSpan(), 0, content.length, 0)
         txtLinkSingUp.text = content
-        txtLinkSingUp.setOnClickListener{
-            intent =Intent(this,SingInActivity::class.java)
+        txtLinkSingUp.setOnClickListener {
+            intent = Intent(this, SignInActivity::class.java)
             startActivity(intent)
             finish()
         }
@@ -82,51 +82,54 @@ class SingUpActivity : AppCompatActivity() {
         }
 
 
-
-        // Proceed with creating user if the passwords match
+        // Attempts to create a new user account with the provided email and password.
         auth.createUserWithEmailAndPassword(user, pass)
             .addOnCompleteListener { task ->
+                // Check if the account creation was successful.
                 if (task.isSuccessful) {
+                    // Retrieve the unique user ID assigned by Firebase Authentication to the new user.
                     val userId = auth.currentUser?.uid ?: ""
 
-                    // Immediately navigate to SignInActivity upon successful account creation
-                    startActivity(Intent(this@SingUpActivity, SingInActivity::class.java))
+                    // After successfully creating a new user account, navigate to the SignInActivity.
+                    // This effectively logs in the new user and moves them to the sign-in screen.
+                    startActivity(Intent(this@SingUpActivity, SignInActivity::class.java))
                     finish()
 
+                    // Prepare a HashMap with the user's email. This can be expanded to include more user info.
+                    val userInfo = hashMapOf("email" to user)
+                    // Reference to the 'Users' node in Firebase Realtime Database where user information is stored.
+                    val userRef = FirebaseDatabase.getInstance().getReference("Users").child(userId)
 
-                        val userInfo = hashMapOf("email" to user)
-                            val userRef =
-                                FirebaseDatabase.getInstance().getReference("Users").child(userId)
-                            userRef.setValue(userInfo).addOnCompleteListener { dbTask ->
-                                if (dbTask.isSuccessful) {
-
-                                    Toast.makeText(
-                                        this@SingUpActivity,
-                                        "SignUp Successful",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                } else {
-                                    Toast.makeText(
-                                        this@SingUpActivity,
-                                        "Failed to save user information: ${dbTask.exception?.message}",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
-                            }
-
-
-
-
+                    // Save the user information (email for now) in the database under the newly created user's ID.
+                    userRef.setValue(userInfo).addOnCompleteListener { dbTask ->
+                        // Check if the operation to save user information in the database was successful.
+                        if (dbTask.isSuccessful) {
+                            // Inform the user of a successful sign-up via a short message.
+                            Toast.makeText(
+                                this@SingUpActivity,
+                                "SignUp Successful",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } else {
+                            // If saving user information fails, display an error message including the exception message.
+                            Toast.makeText(
+                                this@SingUpActivity,
+                                "Failed to save user information: ${dbTask.exception?.message}",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 } else {
+                    // If account creation fails, display an error message including the exception message.
                     Toast.makeText(
                         this,
                         "SignUp Failed: ${task.exception?.message}",
                         Toast.LENGTH_SHORT
                     ).show()
-
                 }
-               }
+            }
     }
 }
+
 
 
